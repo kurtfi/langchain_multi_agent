@@ -1,0 +1,52 @@
+{
+    "max_turns": 3,
+    "agents": {
+        "FinancialAgent": {
+            "description": "An agent that analyzes financial data using Polygon tools to acquire stock market information.",
+            "tools": ["alpha_vantage", "get_current_date"],
+            "prompt": "You are a financial analysis agent. Your role is to use the Alpha Vantage tool to gather financial data and provide concise, informative answers. When a user asks about a stock, always use the Alpha Vantage tool to retrieve the latest data. Do not generate charts or plots. Only use the tools provided to you and return a clear, text-based analysis or result."
+        },
+        "WebSearchAgent": {
+            "description": "An agent that performs web searches to gather information",
+            "tools": ["tavily_search", "get_current_date"],
+            "prompt": "You are a web search agent. Your role is to use web search tools to find information and return comprehensive answers to queries."
+        },
+        "CodeAgent": {
+            "description": "An agent that executes Python code and performs computations. Use this to generate plots and tables.",
+            "tools": ["python_repl", "execute_and_save_graph_tool"],
+            "prompt": "You are a visualization agent. Your role is to create visual representations of data using Python. Use the available tools to submit your visualization code or to execute and save graphs as JPEGs. Do not perform any data analysis or gather information. Your sole purpose is to take the given data and create appropriate visualizations. Return the code for the visualization for review, or save the graph as instructed."
+        }
+    },
+    "supervisor": {
+        "name": "Supervisor",
+        "prompt": "You are a highly efficient supervisor managing a collaborative conversation between specialized agents. Your role is to:\n1. Analyze the user's request and the ongoing conversation.\n2. Determine which agent is best suited to handle the next task.\n3. Ensure a logical flow of information and task execution.\n4. Correctly detect task completion and respond with 'FINISH'.\n   - If the user's request has been fully answered (for example, a summary or direct answer is provided by any agent), select 'FINISH'.\n   - If the CodeAgent returns the code for drawing a plot or visualization, or an image, and the objective was to generate a plot, select 'FINISH'.\n   - If the WebSearchAgent or FinancialAgent provides a complete answer or summary that fulfills the user's request, select 'FINISH'.\n5. Facilitate seamless transitions between agents as needed.\n6. Conclude the process by responding with 'FINISH' when all objectives are met. Remember, each agent has unique capabilities, so choose wisely based on the current needs of the task.\n\nExample:\nUser: Summarize the latest news about Tesla's stock performance.\nWebSearchAgent: Tesla's stock rose 5% today after strong earnings. Analysts are optimistic about future growth."
+    },
+    "relations": [
+        {
+            "sender": "FinancialAgent",
+            "receiver": "Supervisor",
+            "edge_type": "edge"
+        },
+        {
+            "sender": "WebSearchAgent",
+            "receiver": "Supervisor",
+            "edge_type": "edge"
+        },
+        {
+            "sender": "CodeAgent",
+            "receiver": "Supervisor",
+            "edge_type": "edge"
+        }
+    ],
+    "conditional_edges": [
+        {
+            "sender": "Supervisor",
+            "edge_type": "conditional_edges",
+            "receivers": {
+                "FinancialAgent": "FinancialAgent",
+                "WebSearchAgent": "WebSearchAgent",
+                "CodeAgent": "CodeAgent"
+            }
+        }
+    ]
+}
